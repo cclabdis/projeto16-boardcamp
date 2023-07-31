@@ -3,7 +3,7 @@ import joi from "joi"
 export const customerSchema = joi.object({
     name: joi.string().allow(""),
     phone: joi.number().required(),
-    cpf: joi.number().integer().required(),
+    cpf: joi.string().regex(/^\d{11}$/).required(),
     birthday: joi.date().required()
 
 })

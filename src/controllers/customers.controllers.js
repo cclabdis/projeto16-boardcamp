@@ -1,4 +1,5 @@
 import { db } from "../database/database.config.js"
+import dayjs from "dayjs"
 
 export async function allCustomers(req, res) {
         try {
@@ -26,6 +27,33 @@ export async function newCustomer(req, res) {
         res.sendStatus(201)
 
      } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
+function localClient(local) {
+    return local.rows.map(customer => ({
+        ...customer,
+        birthday: dayjs(customer.birthday).format('YYYY-MM-DD'),
+    })
+    )
+}
+
+export async function customerByID(req, res) {
+    const { id } = req.params
+    
+    try {
+        let clientId = await db.query(`
+            SELECT * FROM customers WHERE id = ( $1 )
+        `, [id])
+
+        if (clientId.rows.length === 0) return res.sendStatus(404)
+
+        clientId= localClient(clientId)
+
+        res.send(clientId[0])
+
+    } catch (err) {
         res.status(500).send(err.message)
     }
 }
