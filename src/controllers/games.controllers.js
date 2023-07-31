@@ -32,10 +32,8 @@ export async function createGame (req, res) {
     
             // res.sendStatus(201)
 
-
-        if (stockTotal <= 0 || pricePerDay <= 0) {
-            res.sendStatus(400)
-          }
+      
+        if (!name || stockTotal <= 0 || pricePerDay <= 0) {res.sendStatus(400) }
       
           // Verificar se o nome do jogo já existe na tabela
           const existingGame = await db.query('SELECT 1 FROM games WHERE name = $1', [name]);
