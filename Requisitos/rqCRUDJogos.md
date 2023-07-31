@@ -1,4 +1,4 @@
-- CRUD de Jogos [Create | Read]
+[X ]- CRUD de Jogos [Create | Read]
     - Formato de um jogo (tabela `games`)
         
         ```jsx
