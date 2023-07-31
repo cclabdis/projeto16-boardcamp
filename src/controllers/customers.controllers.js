@@ -10,15 +10,25 @@ function localClient(local) {
     )
 }
 
+// export async function allCustomers(req, res) {
+//         try {
+//             const customers = await db.query(`SELECT * FROM customers;`)
+//             res.send(customers.rows)
+//         } catch (err) {
+//             res.status(500).send(err.message)
+//         }
+//     }
+
 export async function allCustomers(req, res) {
-        try {
-            const customers = await db.query(`SELECT * FROM customers;`)
-            customers = localClient(customers)
-            res.send(customers.rows)
-        } catch (err) {
-            res.status(500).send(err.message)
-        }
+    try {
+        const customers = await db.query(`SELECT id, name, phone, cpf, TO_CHAR(birthday, 'YYYY-MM-DD') AS birthday FROM customers`);
+        res.send(customers.rows);
+      
+    } catch (err) {
+       res.status(500).send(err.message)
     }
+  }
+  
     
 export async function newCustomer(req, res) {
     const { name, phone, cpf, birthday } = req.body
@@ -68,17 +78,12 @@ export async function updateCustomer(req, res) {
 
     try {
 
-        const { rows: client } = await db.query(`
-            SELECT * FROM customers WHERE id=$1
-        `, [id])
+        const client = await db.query(`SELECT * FROM customers WHERE id=$1`, [id])
+        if (client.rows.length === 0)  return res.sendStatus(404)
 
-        const { rows: cpfClient } = await db.query(`
-            SELECT id FROM customers WHERE cpf=$1
-        `, [cpf])
-
-        if (cpfClient.length > 0 && cpf !== client[0].cpf) {
-            return res.sendStatus(409)
-        }
+        const cpfClient = await db.query((`SELECT * FROM customers WHERE cpf = $1 AND id <> $2;`, [cpf, id]))
+        if (cpfClient.rows.length > 0) return res.sendStatus(409)
+  
 
         await db.query(`
             UPDATE customers
@@ -92,3 +97,9 @@ export async function updateCustomer(req, res) {
         res.status(500).send(err.message)
     }
 }
+
+
+
+
+
+
