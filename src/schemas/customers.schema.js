@@ -2,8 +2,8 @@ import joi from "joi"
 
 export const customerSchema = joi.object({
     name: joi.string().allow(""),
-    phone: joi.number().trim().required(),
-    cpf: joi.number().trim().integer().required(),
+    phone: joi.number().required(),
+    cpf: joi.number().integer().required(),
     birthday: joi.date().required()
 
 })
