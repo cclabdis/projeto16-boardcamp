@@ -1,9 +1,19 @@
 import { db } from "../database/database.config.js"
 import dayjs from "dayjs"
 
+
+function localClient(local) {
+    return local.rows.map(customer => ({
+        ...customer,
+        birthday: dayjs(customer.birthday).format('YYYY-MM-DD'),
+    })
+    )
+}
+
 export async function allCustomers(req, res) {
         try {
             const customers = await db.query(`SELECT * FROM customers;`)
+            customers = localClient(customers)
             res.send(customers.rows)
         } catch (err) {
             res.status(500).send(err.message)
@@ -31,13 +41,7 @@ export async function newCustomer(req, res) {
     }
 }
 
-function localClient(local) {
-    return local.rows.map(customer => ({
-        ...customer,
-        birthday: dayjs(customer.birthday).format('YYYY-MM-DD'),
-    })
-    )
-}
+
 
 export async function customerByID(req, res) {
     const { id } = req.params
@@ -58,3 +62,33 @@ export async function customerByID(req, res) {
     }
 }
 
+export async function updateCustomer(req, res) {
+    const { id } = req.params
+    const { name, phone, cpf, birthday } = req.body
+
+    try {
+
+        const { rows: client } = await db.query(`
+            SELECT * FROM customers WHERE id=$1
+        `, [id])
+
+        const { rows: cpfClient } = await db.query(`
+            SELECT id FROM customers WHERE cpf=$1
+        `, [cpf])
+
+        if (cpfClient.length > 0 && cpf !== client[0].cpf) {
+            return res.sendStatus(409)
+        }
+
+        await db.query(`
+            UPDATE customers
+            SET name = $1, cpf = $2, phone = $3, birthday = $4 
+            WHERE id=$5
+        `, [name, cpf, phone, birthday, id])
+
+        res.sendStatus(200)
+
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
