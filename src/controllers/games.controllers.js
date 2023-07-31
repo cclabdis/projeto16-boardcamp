@@ -2,8 +2,8 @@ import { db } from "../database/database.config.js"
 
 export async function getGames(req, res) {
     try {
-        const games = await db.query(`SELECT * FROM games;`)
-        res.send(games.rows)
+        const {rows: games } = await db.query(`SELECT * FROM games;`)
+        res.send(games)
     } catch (err) {
         res.status(500).send(err.message)
     }
@@ -14,19 +14,14 @@ export async function createGame (req, res) {
     const { name, image, stockTotal, pricePerDay } = req.body
     
         try {
-        if (!name) {res.sendStatus(400)}
-        if ( stockTotal <= 0 || pricePerDay <= 0) {res.sendStatus(400) }
-      
-          const existingGame = await db.query('SELECT 1 FROM games WHERE name = $1', [name]);
-          if (existingGame.rows.length > 0) {
+          const {rows: existingGame } = await db.query('SELECT 1 FROM games WHERE name = $1', [name]);
+          if (existingGame.length > 0) {
             res.sendStatus(409)
           }
       
           const queryText = 'INSERT INTO games (name, image, "stockTotal", "pricePerDay") VALUES ($1, $2, $3, $4)';
           await db.query(queryText, [name, image, stockTotal, pricePerDay]);
-      
           res.sendStatus(201)
-     
 
     }catch(err) {
         res.status(500).send(err.message)

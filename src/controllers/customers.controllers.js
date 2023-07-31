@@ -13,8 +13,8 @@ function localClient(local) {
 
 export async function allCustomers(req, res) {
     try {
-        const customers = await db.query(`SELECT id, name, phone, cpf, TO_CHAR(birthday, 'YYYY-MM-DD') AS birthday FROM customers`);
-        res.send(customers.rows);
+        const {rows: customers } = await db.query(`SELECT id, name, phone, cpf, TO_CHAR(birthday, 'YYYY-MM-DD') AS birthday FROM customers`)
+        res.send(customers)
       
     } catch (err) {
        res.status(500).send(err.message)
@@ -46,12 +46,11 @@ export async function customerByID(req, res) {
     const { id } = req.params
     
     try {
-        let clientId = await db.query(`
+        let {rows: clientId } = await db.query(`
             SELECT * FROM customers WHERE id = ( $1 )
         `, [id])
 
-        if (clientId.rows.length === 0) return res.sendStatus(404)
-
+        if (clientId.length === 0) return res.sendStatus(404)
         clientId= localClient(clientId)
 
         res.send(clientId[0])
@@ -66,11 +65,11 @@ export async function updateCustomer(req, res) {
     const { name, phone, cpf, birthday } = req.body
 
     try {
-        const client = await db.query(`SELECT * FROM customers WHERE id=$1`, [id])
-        if (client.rows.length === 0)  return res.sendStatus(404)
+        const {rows: client} = await db.query(`SELECT * FROM customers WHERE id=$1`, [id])
+        if (client.length === 0)  return res.sendStatus(404)
 
-        const cpfClient = await db.query(`SELECT * FROM customers WHERE cpf = $1 AND id <> $2;`, [cpf, id])
-        if (cpfClient.rows.length > 0) return res.sendStatus(409)
+        const {rows: cpfClient } = await db.query(`SELECT * FROM customers WHERE cpf = $1 AND id <> $2;`, [cpf, id])
+        if (cpfClient.length > 0) return res.sendStatus(409)
   
         await db.query(`
             UPDATE customers
