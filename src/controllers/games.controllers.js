@@ -18,9 +18,8 @@ export async function createGame (req, res) {
           if (existingGame.length > 0) {
             res.sendStatus(409)
           }
-      
-          const queryText = 'INSERT INTO games (name, image, "stockTotal", "pricePerDay") VALUES ($1, $2, $3, $4)';
-          await db.query(queryText, [name, image, stockTotal, pricePerDay]);
+          
+          await db.query('INSERT INTO games (name, image, "stockTotal", "pricePerDay") VALUES ($1, $2, $3, $4)', [name, image, stockTotal, pricePerDay])
           res.sendStatus(201)
 
     }catch(err) {
