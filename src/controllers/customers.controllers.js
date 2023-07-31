@@ -13,7 +13,7 @@ function localClient(local) {
 
 export async function allCustomers(req, res) {
     try {
-        const {rows: customers } = await db.query(`SELECT id, name, phone, cpf, TO_CHAR(birthday, 'YYYY-MM-DD') AS birthday FROM customers`)
+        const {rows: customers } = await db.query(`SELECT id, name, phone, cpf, TO_CHAR(birthday, 'YYYY-MM-DD') AS birthday FROM customers`);
         res.send(customers)
       
     } catch (err) {
@@ -46,11 +46,11 @@ export async function customerByID(req, res) {
     const { id } = req.params
     
     try {
-        let {rows: clientId } = await db.query(`
+        let clientId  = await db.query(`
             SELECT * FROM customers WHERE id = ( $1 )
         `, [id])
 
-        if (clientId.length === 0) return res.sendStatus(404)
+        if (clientId.rows.length === 0) return res.sendStatus(404)
         clientId= localClient(clientId)
 
         res.send(clientId[0])
