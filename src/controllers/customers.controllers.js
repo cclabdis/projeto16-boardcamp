@@ -10,14 +10,6 @@ function localClient(local) {
     )
 }
 
-// export async function allCustomers(req, res) {
-//         try {
-//             const customers = await db.query(`SELECT * FROM customers;`)
-//             res.send(customers.rows)
-//         } catch (err) {
-//             res.status(500).send(err.message)
-//         }
-//     }
 
 export async function allCustomers(req, res) {
     try {
@@ -27,9 +19,8 @@ export async function allCustomers(req, res) {
     } catch (err) {
        res.status(500).send(err.message)
     }
-  }
-  
-    
+}
+
 export async function newCustomer(req, res) {
     const { name, phone, cpf, birthday } = req.body
 
@@ -50,8 +41,6 @@ export async function newCustomer(req, res) {
         res.status(500).send(err.message)
     }
 }
-
-
 
 export async function customerByID(req, res) {
     const { id } = req.params
@@ -77,29 +66,20 @@ export async function updateCustomer(req, res) {
     const { name, phone, cpf, birthday } = req.body
 
     try {
-
         const client = await db.query(`SELECT * FROM customers WHERE id=$1`, [id])
         if (client.rows.length === 0)  return res.sendStatus(404)
 
-        const cpfClient = await db.query((`SELECT * FROM customers WHERE cpf = $1 AND id <> $2;`, [cpf, id]))
+        const cpfClient = await db.query(`SELECT * FROM customers WHERE cpf = $1 AND id <> $2;`, [cpf, id])
         if (cpfClient.rows.length > 0) return res.sendStatus(409)
   
-
         await db.query(`
             UPDATE customers
-            SET name = $1, cpf = $2, phone = $3, birthday = $4 
+            SET name = $1, phone = $2, cpf = $3, birthday = $4 
             WHERE id=$5
-        `, [name, cpf, phone, birthday, id])
-
+        `, [name, phone, cpf, birthday, id])
         res.sendStatus(200)
 
     } catch (err) {
         res.status(500).send(err.message)
     }
 }
-
-
-
-
-
-
